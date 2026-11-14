@@ -83,7 +83,7 @@ footer a{color:var(--acc2)}.banner{display:none;position:fixed;bottom:12px;left:
   <h2 class="reveal">A crew walks. <em>Global maps</em> don’t.</h2>
   <p class="lead reveal">Today’s Mars portals show the whole planet. A suited explorer needs a few kilometres of ground described at the scale of a footstep: where it is walkable, where it is not, what is worth the walk, and what it will look like on arrival.</p>
   <div class="reveal"><div class="zoom">
-    <figure class="lo"><img id="zoomlo" alt="Regional view"><figcaption>REGIONAL · ~463 m / PIXEL (MOLA)</figcaption></figure>
+    <figure class="lo"><img id="zoomlo" alt="Regional view"><figcaption>REGIONAL SCALE (ILLUSTRATIVE BLUR; MOLA IS ~463 m / PIXEL)</figcaption></figure>
     <figure class="hi"><img id="zoomhi" alt="HiRISE view"><figcaption>ARES · ~1 m / PIXEL (HiRISE)</figcaption></figure>
   </div></div>
 </section>
@@ -149,18 +149,22 @@ footer a{color:var(--acc2)}.banner{display:none;position:fixed;bottom:12px;left:
   <div class="tag reveal">WHAT COMES NEXT</div>
   <h2 class="reveal">From planning table to <em>helmet visor</em>.</h2>
   <p class="lead reveal">The route, no-go mask and budget are plain rasters and JSON, so the same plan can drive a habitat display, a crew tablet or a visor HUD. Next: live radiation, thermal maps, rock-abundance hazards, a rover-assisted two-person EVA, and any other site, by changing the product IDs.</p>
-  <div class="ctl reveal" style="margin-top:22px"><a class="btn" id="l-nb" href="#">OPEN THE NOTEBOOK</a><a class="btn" href="data/ares_mission_dashboard.png" target="_blank" rel="noopener">MISSION DASHBOARD</a></div>
+  <div class="ctl reveal" style="margin-top:22px"><a class="btn" id="l-nb" href="#" target="_blank" rel="noopener">NOTEBOOK ON GITHUB</a><a class="btn" id="l-gh" href="#" target="_blank" rel="noopener">SOURCE REPOSITORY</a><a class="btn" href="data/ares_mission_dashboard.png" target="_blank" rel="noopener">MISSION DASHBOARD</a></div>
 </section>
 
 <footer>
   <p><b>NASA Space Apps Challenge 2026 · Mars Marswalk.</b> Team: Umar Tabbsum (owner), Aiden Janes, Luke Korth.</p>
   <p>NASA data: MRO HiRISE, MRO CRISM, MGS MOLA (NASA PDS); Mars 2020 Perseverance raw images, rover waypoints and MEDA weather (NASA/JPL-Caltech and instrument teams). This project is not endorsed by NASA.</p>
   <p>Use of AI: a large language model assistant (Claude, by Anthropic) helped write and debug code and text for this site and the analysis notebook. No NASA logos or mission identifiers are used.</p>
+  <p>Code and notebook: <a href="https://github.com/ut1776/ARES-Mars-Mission" target="_blank" rel="noopener">github.com/ut1776/ARES-Mars-Mission</a></p>
 </footer>
 <div class="banner" id="banner"></div>
 
 <script>
-const CONFIG={notebookUrl:"" /* paste your public Kaggle notebook link */};
+const CONFIG={
+  repoUrl:"https://github.com/ut1776/ARES-Mars-Mission",
+  notebookUrl:"https://github.com/ut1776/ARES-Mars-Mission/blob/main/notebook/ARES_Martian_Mission_Planner_FINAL.ipynb"
+};
 const $=s=>document.querySelector(s);
 const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -177,7 +181,7 @@ document.querySelectorAll(".reveal").forEach(e=>io.observe(e));
 function banner(t){const b=$("#banner");b.textContent=t;b.style.display="block"}
 function loadImg(src){return new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src})}
 const fmtH=h=>{const m=Math.round(h*60);return Math.floor(m/60)+":"+String(m%60).padStart(2,"0")};
-if(CONFIG.notebookUrl)$("#l-nb").href=CONFIG.notebookUrl;else $("#l-nb").style.display="none";
+$("#l-nb").href=CONFIG.notebookUrl;$("#l-gh").href=CONFIG.repoUrl;
 
 fetch("data/mission.json").then(r=>{if(!r.ok)throw 0;return r.json()}).then(M=>start(M)).catch(()=>banner("Mission data not found. Copy the notebook's ares_site/data folder next to index.html."));
 
