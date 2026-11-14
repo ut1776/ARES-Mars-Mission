@@ -18,7 +18,7 @@ assumptions. Rock-scale hazards, suit effects, thermal data and live space weath
 are not modelled. CRISM indices say where to look, not what is there.
 
 ## Team
-Umar Tabbsum, Aiden Janes, Luke Korth.
+Umar Tabbsum, Aiden Janes, Luke Korth, Viralbhai Patel.
 
 
 No NASA logos or mission identifiers are used. This project is not endorsed by NASA.
