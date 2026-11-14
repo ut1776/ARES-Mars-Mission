@@ -1,2 +1,26 @@
-# ARES-Mars-Mission
-An advanced Mars surface exploration toolkit combining planetary terrain analysis, CRISM spectral interpretation, transformation groups, coordinate invariance, and uncertainty-aware rover route assessment.
+# ARES — Adaptive Reconnaissance & Expedition System
+NASA Space Apps Challenge 2026 · Mars Marswalk · Jezero Crater
+
+ARES layers real NASA data into a metre-scale planning map for a suited Mars walk,
+picks spectral science stops, plans a least-cost EVA loop, and checks its hazard model
+against where NASA's Perseverance rover actually drove.
+
+- Live site: (paste your Render link)
+- Notebook: (paste your public Kaggle link)
+
+## NASA data used
+MRO HiRISE (terrain model and image), MRO CRISM (spectral indices), MGS MOLA (elevation),
+Mars 2020 Perseverance raw images, rover waypoints and MEDA weather.
+
+## Honest limits
+Planning prototype, not a certified safe route. Thresholds and speeds are project
+assumptions. Rock-scale hazards, suit effects, thermal data and live space weather
+are not modelled. CRISM indices say where to look, not what is there.
+
+## Team
+Umar Tabbsum, Aiden Janes, Luke Korth.
+
+
+No NASA logos or mission identifiers are used. This project is not endorsed by NASA.
+
+MIT License.
