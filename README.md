@@ -6,11 +6,17 @@
 
 **A data-driven mission-planning experience for a future human EVA at Jezero Crater.**
 
+<p>
+  <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Spinning_Mars.gif" alt="Animated rotating planet Mars" width="190">
+</p>
+
 [![LAUNCH LIVE MISSION](https://img.shields.io/badge/LAUNCH-Live%20Mission%20Experience-e85d2a?style=for-the-badge)](https://ares-mars-mission-d4yz.onrender.com)
 [![SCIENTIFIC NOTEBOOK](https://img.shields.io/badge/EXPLORE-Scientific%20Notebook-20232a?style=for-the-badge&logo=jupyter)](notebook/ARES_Martian_Mission_Planner_FINAL.ipynb)
 [![MIT License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 
-*NASA Space Apps Challenge 2026 · Mars Marswalk · Jezero Crater*
+*NASA Space Apps Challenge 2026 · Marswalk · Jezero Crater*
+
+<sub>Rotating Mars animation: “Spinning Mars” by JOGOS Public Assets, CC BY-SA 4.0. <a href="https://commons.wikimedia.org/wiki/File:Spinning_Mars.gif">Source and license</a>.</sub>
 
 </div>
 
@@ -22,18 +28,56 @@
 
 > **The challenge:** A crew walking on Mars cannot rely on GPS or a global map. They need a local plan that connects terrain, hazards, science targets, time, and the journey home.
 
-## 🚀 Judge walkthrough — start here
+## 🚀 Judge walkthrough — follow this mission sequence
 
-**[Launch the live ARES mission experience →](https://ares-mars-mission-d4yz.onrender.com)**
+**Recommended time: 5–7 minutes.** Start with the live experience, then use the notebook to verify how the planning outputs were produced.
 
-1. **Mission brief** — understand why human-scale terrain intelligence matters.
-2. **NASA data stack** — see how orbital imagery, topography, spectroscopy and rover observations contribute.
-3. **Interactive 3D terrain lab** — rotate the Jezero terrain preview and inspect planned route and science-stop markers.
-4. **EVA mission replay** — watch the route unfold; inspect distance, elapsed time, slope, elevation and reference dose; toggle no-go terrain and the Perseverance traverse.
-5. **Safety and scientific integrity** — distinguish measured inputs, derived products and planning assumptions.
-6. **Scientific notebook** — inspect the reproducible analysis behind the experience.
+<p align="center">
+  <a href="https://ares-mars-mission-d4yz.onrender.com"><img src="data/ares_mission_dashboard.png" alt="ARES mission dashboard — open the live mission experience" width="94%"></a>
+</p>
 
-The 3D surface is an explanatory visualization. Quantitative route and hazard analysis comes from the notebook terrain products and mission dataset.
+### Step 1 — Launch the mission (30 seconds)
+
+Open **[ARES Live Mission Experience](https://ares-mars-mission-d4yz.onrender.com)**. Begin with the mission brief and identify the central problem: a Mars crew needs a local route that connects terrain safety, science objectives, EVA time and a viable return to its habitat.
+
+### Step 2 — Understand the planetary data (60 seconds)
+
+Find the NASA data / mission context section. Notice how ARES combines:
+- **HiRISE** imagery and terrain elevation for local-scale surface context.
+- **CRISM** spectral summary parameters to flag areas of scientific interest.
+- **MOLA** elevation for regional topographic context.
+- **Perseverance** imagery and traverse waypoints as nearby rover-ground-truth context.
+
+The point is data fusion: no single layer answers every mission-planning question.
+
+### Step 3 — Explore the 3D terrain (60–90 seconds)
+
+Open the **3D Terrain Lab**. Drag to rotate the terrain view, use the zoom control or wheel/pinch gesture to move closer, and use **Reset View** to return to the starting camera. Toggle the route and terrain overlays where available.
+
+Treat this as an explanatory terrain preview. It helps orient the judge to the landscape; it is not the source of the quantitative slope or hazard calculations.
+
+### Step 4 — Follow the EVA route (60–90 seconds)
+
+Open the **EVA Mission Replay** and follow the planned loop from the habitat through the selected science stops and back. Watch the route metrics as the replay progresses: distance, elapsed time, slope, elevation and walk-back context. Where available, toggle the no-go terrain and Perseverance traverse overlays to compare the planned route with the surrounding evidence.
+
+### Step 5 — Inspect the science and hazard reasoning (60 seconds)
+
+Review the three selected spectral science stops and the hazard-screening view. Ask:
+- What terrain and spectral evidence contributed to the stop selection?
+- How does slope screening influence the route?
+- How does the plan account for the distance and time needed to return?
+
+CRISM summary parameters are indicators for investigation; they do not independently establish mineral identity.
+
+### Step 6 — Check the mission numbers (30 seconds)
+
+Compare the live experience with the mission snapshot below. The current project plan is **9.24 km**, an estimated **4.17-hour EVA**, a maximum route slope of **8.2°**, and a maximum walk-back distance of **4.62 km**, against an **assumed 8.0-hour planning limit**.
+
+### Step 7 — Verify the analysis (60 seconds)
+
+Open the **[final scientific notebook](notebook/ARES_Martian_Mission_Planner_FINAL.ipynb)**. Inspect the data preparation, terrain/hazard analysis, route planning and outputs. The [mission JSON](data/mission.json) is the structured dataset used by the web experience.
+
+**What to take away:** ARES connects orbital science data to a human-scale EVA planning workflow, makes its assumptions visible, and gives the judge a route they can explore rather than only a static map.
 
 ## 🧭 Project summary
 
