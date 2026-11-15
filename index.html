@@ -322,64 +322,72 @@ async function start(M){
 
 <script type="module">
 (async()=>{
- const status=document.getElementById("terrain-state"),canvas=document.getElementById("terrain3d-canvas");
- const fallback=document.getElementById("terrain-fallback");
+ const status=document.getElementById("terrain-state"),canvas=document.getElementById("terrain3d-canvas"),fallback=document.getElementById("terrain-fallback");
+ const fail=(message)=>{status.textContent="3D VIEW UNAVAILABLE";fallback.textContent=message;canvas.style.display="block";};
  try{
+  // One dependency only: OrbitControls previously failed on browsers that do not resolve
+  // the bare "three" module specifier used by the separate controls package.
   const THREE=await import("https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js");
-  const {OrbitControls}=await import("https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js");
-  const scene=new THREE.Scene();scene.background=new THREE.Color(0x0b0706);scene.fog=new THREE.Fog(0x0b0706,18,42);
-  const camera=new THREE.PerspectiveCamera(43,1,.1,100);camera.position.set(10,10,13);
-  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;
-  const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.055;controls.minDistance=5;controls.maxDistance=28;controls.maxPolarAngle=Math.PI*.48;controls.target.set(0,0,0);
-  scene.add(new THREE.HemisphereLight(0xffd7bd,0x26100b,2.0));
-  const key=new THREE.DirectionalLight(0xffc29c,2.6);key.position.set(-7,12,8);scene.add(key);
-  const fill=new THREE.PointLight(0x4e8caa,24,35);fill.position.set(7,5,-7);scene.add(fill);
+  const scene=new THREE.Scene();scene.background=new THREE.Color(0x0b0706);scene.fog=new THREE.Fog(0x0b0706,20,46);
+  const camera=new THREE.PerspectiveCamera(42,1,.1,100);camera.position.set(9,10,13);
+  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:"high-performance"});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.6));renderer.outputColorSpace=THREE.SRGBColorSpace;
+  scene.add(new THREE.HemisphereLight(0xffd7bd,0x26100b,1.8));
+  const key=new THREE.DirectionalLight(0xffc29c,2.5);key.position.set(-7,12,8);scene.add(key);
+  const fill=new THREE.PointLight(0x4e8caa,18,35);fill.position.set(7,5,-7);scene.add(fill);
   const loader=new THREE.TextureLoader();
-  const tex=await new Promise((resolve,reject)=>loader.load("data/basemap.jpg",resolve,undefined,reject));
-  tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=renderer.capabilities.getMaxAnisotropy();
-  const img=tex.image,w=img.width,h=img.height;
+  const tex=await new Promise((resolve,reject)=>loader.load("./data/basemap.jpg",resolve,undefined,reject));
+  tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
+  const img=tex.image,w=img.width,h=img.height,aspect=h/w;
   const sample=document.createElement("canvas");sample.width=w;sample.height=h;
   const sx=sample.getContext("2d",{willReadFrequently:true});sx.drawImage(img,0,0);
   const px=sx.getImageData(0,0,w,h).data;
-  const gw=180,gh=Math.max(90,Math.round(180*h/w)),geo=new THREE.PlaneGeometry(14,14*h/w,gw,gh);
+  const geo=new THREE.PlaneGeometry(14,14*aspect,150,Math.max(90,Math.round(150*aspect)));
   const pos=geo.attributes.position;
   for(let i=0;i<pos.count;i++){
-   const u=(pos.getX(i)/14)+.5,v=(pos.getY(i)/(14*h/w))+.5;
+   const u=pos.getX(i)/14+.5,v=pos.getY(i)/(14*aspect)+.5;
    const ix=Math.min(w-1,Math.max(0,Math.floor(u*(w-1)))),iy=Math.min(h-1,Math.max(0,Math.floor((1-v)*(h-1))));
    const j=(iy*w+ix)*4,lum=(px[j]*.2126+px[j+1]*.7152+px[j+2]*.0722)/255;
-   pos.setZ(i,(lum-.45)*.72);
+   pos.setZ(i,(lum-.45)*.78);
   }
   geo.computeVertexNormals();geo.rotateX(-Math.PI/2);
-  const mat=new THREE.MeshStandardMaterial({map:tex,roughness:.96,metalness:.02,side:THREE.DoubleSide});
-  const ground=new THREE.Mesh(geo,mat);scene.add(ground);
-  const grid=new THREE.GridHelper(14,28,0x9c5234,0x48271e);grid.position.y=-.48;grid.material.transparent=true;grid.material.opacity=.26;scene.add(grid);
-  let overlay=new THREE.Group();scene.add(overlay);
-  const routeMat=new THREE.LineBasicMaterial({color:0x36e6f4,transparent:true,opacity:.98});
-  let routeLine=null;
-  try{
-   const M=await fetch("data/mission.json").then(r=>{if(!r.ok)throw Error("mission data");return r.json()});
-   const R=M.route,pts=[];
-   for(let i=0;i<R.u.length;i++){
-    const x=(R.u[i]-.5)*14,z=(.5-R.v[i])*14*h/w;
-    const y=.15+(R.elev_m?.[i]||0)*.00015;
-    pts.push(new THREE.Vector3(x,y,z));
-   }
-   routeLine=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),routeMat);overlay.add(routeLine);
-   M.stops.forEach((s,n)=>{
-    const marker=new THREE.Mesh(new THREE.SphereGeometry(.105,18,14),new THREE.MeshStandardMaterial({color:s.color||0xffc45c,emissive:s.color||0xff6a2b,emissiveIntensity:.45}));
-    marker.position.set((s.u-.5)*14,.28,(.5-s.v)*14*h/w);overlay.add(marker);
-    const halo=new THREE.Mesh(new THREE.TorusGeometry(.19,.018,6,28),new THREE.MeshBasicMaterial({color:0xffc17a}));
-    halo.rotation.x=Math.PI/2;halo.position.copy(marker.position);halo.position.y-=.03;overlay.add(halo);
-   });
-   status.textContent="ROUTE + "+M.stops.length+" SCIENCE STOPS";
-  }catch(e){status.textContent="TERRAIN PREVIEW";fallback.textContent="Mission route overlay could not be loaded; the terrain preview remains available."}
-  const wire=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xffc09a,wireframe:true,transparent:true,opacity:.19}));wire.visible=false;scene.add(wire);
-  const resize=()=>{const r=canvas.getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/Math.max(1,r.height);camera.updateProjectionMatrix()};new ResizeObserver(resize).observe(canvas);resize();
-  document.getElementById("terrain-reset").onclick=()=>{camera.position.set(10,10,13);controls.target.set(0,0,0);controls.update()};
+  const ground=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({map:tex,roughness:1,metalness:0,side:THREE.DoubleSide}));scene.add(ground);
+  const grid=new THREE.GridHelper(14,28,0x9c5234,0x48271e);grid.position.y=-.48;grid.material.transparent=true;grid.material.opacity=.25;scene.add(grid);
+  const overlay=new THREE.Group();scene.add(overlay);
+  const M=await fetch("./data/mission.json").then(r=>{if(!r.ok)throw Error("Mission JSON request failed ("+r.status+")");return r.json()});
+  const R=M.route;
+  if(!R||!Array.isArray(R.u)||!Array.isArray(R.v))throw Error("Mission route coordinates are missing from data/mission.json");
+  const pts=[];
+  for(let i=0;i<Math.min(R.u.length,R.v.length);i++)pts.push(new THREE.Vector3((R.u[i]-.5)*14,.2,(.5-R.v[i])*14*aspect));
+  if(pts.length>1)overlay.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0x36e6f4,linewidth:2})));
+  (M.stops||[]).forEach(s=>{
+   const marker=new THREE.Mesh(new THREE.SphereGeometry(.11,16,12),new THREE.MeshStandardMaterial({color:s.color||0xffc45c,emissive:s.color||0xff6a2b,emissiveIntensity:.35}));
+   marker.position.set(((s.u??.5)-.5)*14,.28,(.5-(s.v??.5))*14*aspect);overlay.add(marker);
+   const halo=new THREE.Mesh(new THREE.TorusGeometry(.19,.018,6,24),new THREE.MeshBasicMaterial({color:0xffc17a}));
+   halo.rotation.x=Math.PI/2;halo.position.copy(marker.position);halo.position.y-=.03;overlay.add(halo);
+  });
+  const wire=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xffc09a,wireframe:true,transparent:true,opacity:.2}));wire.visible=false;scene.add(wire);
+  // Lightweight orbit camera: pointer drag rotates; wheel/pinch zooms. No controls add-on.
+  let yaw=.62,pitch=.68,distance=18,drag=null,pinchStart=0,pinchDistance=0;
+  const target=new THREE.Vector3(0,0,0);
+  const updateCamera=()=>{pitch=Math.max(.12,Math.min(1.42,pitch));distance=Math.max(6,Math.min(32,distance));camera.position.set(target.x+distance*Math.sin(yaw)*Math.cos(pitch),target.y+distance*Math.sin(pitch),target.z+distance*Math.cos(yaw)*Math.cos(pitch));camera.lookAt(target)};
+  updateCamera();
+  canvas.style.touchAction="none";
+  canvas.addEventListener("pointerdown",e=>{canvas.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY};});
+  canvas.addEventListener("pointermove",e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag={x:e.clientX,y:e.clientY};yaw-=dx*.008;pitch+=dy*.008;updateCamera()});
+  const stopDrag=()=>{drag=null};canvas.addEventListener("pointerup",stopDrag);canvas.addEventListener("pointercancel",stopDrag);
+  canvas.addEventListener("wheel",e=>{e.preventDefault();distance*=Math.exp(e.deltaY*.001);updateCamera()},{passive:false});
+  let touches=[];
+  canvas.addEventListener("touchstart",e=>{touches=[...e.touches];if(touches.length===2)pinchDistance=Math.hypot(touches[0].clientX-touches[1].clientX,touches[0].clientY-touches[1].clientY)},{passive:true});
+  canvas.addEventListener("touchmove",e=>{if(e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);if(pinchDistance)distance*=pinchDistance/Math.max(1,d);pinchDistance=d;updateCamera()}},{passive:true});
+  const resize=()=>{const r=canvas.getBoundingClientRect();if(r.width<2||r.height<2)return;renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix()};new ResizeObserver(resize).observe(canvas);resize();
+  document.getElementById("terrain-reset").onclick=()=>{yaw=.62;pitch=.68;distance=18;updateCamera()};
   document.getElementById("terrain-wire").onclick=e=>{wire.visible=!wire.visible;e.currentTarget.classList.toggle("on",wire.visible)};
   document.getElementById("terrain-route").onclick=e=>{overlay.visible=!overlay.visible;e.currentTarget.classList.toggle("on",overlay.visible)};
-  const clock=new THREE.Clock();(function animate(){requestAnimationFrame(animate);const t=clock.getElapsedTime();ground.rotation.y=Math.sin(t*.12)*.018;controls.update();renderer.render(scene,camera)})();
- }catch(err){status.textContent="2D REPLAY AVAILABLE";fallback.textContent="3D view could not initialize in this browser. The mission replay and route map remain fully available.";canvas.style.display="none"}
+  status.textContent="3D TERRAIN · "+(M.stops||[]).length+" SCIENCE STOPS";
+  fallback.textContent="Drag to rotate. Scroll or pinch to zoom. The terrain relief is image-derived and illustrative; quantitative planning outputs are documented in the notebook.";
+  const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const t=clock.getElapsedTime();ground.rotation.y=Math.sin(t*.12)*.012;renderer.render(scene,camera)}animate();
+ }catch(err){console.error("ARES 3D initialization:",err);fail("3D could not initialize: "+(err&&err.message?err.message:"browser or graphics limitation")+". Try reloading the page; the 2D EVA replay remains available below.");}
 })();
 </script>
 
