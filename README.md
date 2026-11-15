@@ -5,8 +5,8 @@ ARES layers real NASA data into a metre-scale planning map for a suited Mars wal
 picks spectral science stops, plans a least-cost EVA loop, and checks its hazard model
 against where NASA's Perseverance rover actually drove.
 
-- Live site: (paste your Render link)
-- Notebook: (paste your public Kaggle link)
+- Live site: https://ares-mars-mission-d4yz.onrender.com
+- Notebook: https://github.com/ut1776/ARES-Mars-Mission/tree/main/notebook
 
 ## NASA data used
 MRO HiRISE (terrain model and image), MRO CRISM (spectral indices), MGS MOLA (elevation),
