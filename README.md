@@ -7,6 +7,7 @@ against where NASA's Perseverance rover actually drove.
 
 - Live site: https://ares-mars-mission-d4yz.onrender.com
 - Notebook: https://github.com/ut1776/ARES-Mars-Mission/tree/main/notebook
+- YouTube Video: https://m.youtube.com/watch?v=CZ2nQl5CsOQ&pp=iggUQAFKEEhLdWJubjhseUVPZnNrQUk%3D&ra=m
 
 ## NASA data used
 MRO HiRISE (terrain model and image), MRO CRISM (spectral indices), MGS MOLA (elevation),
